@@ -1,0 +1,22 @@
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+    steps:
+      - uses: actions/checkout@v7
+      - uses: jdx/mise-action@v5
+      - uses: actions/cache@v6
+        with:
+          path: ~/.arduino15/staging
+          key: arduino-${{ runner.os }}-${{ hashFiles('Makefile', 'arduino-cli.yaml') }}
+      - run: |
+          make install
+      - run: |
+          make all
